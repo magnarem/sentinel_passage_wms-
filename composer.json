@@ -1,0 +1,13 @@
+{
+    "name": "sentinel_passage_wms",
+    "type": "drupal-module",
+    "description": "Visualisation of Sentinel2 Passages WMS",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/sentinel_passage_wms",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/sentinel_passage_wms",
+        "source": "http://cgit.drupalcode.org/sentinel_passage_wms"
+    }
+}

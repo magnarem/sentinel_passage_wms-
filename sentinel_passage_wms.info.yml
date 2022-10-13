@@ -1,0 +1,7 @@
+name: 'sentinel_passage_wms'
+type: module
+description: 'Visualisation of Sentinel2 Passages WMS'
+core_version_requirement: ^8.8 || ^9
+version: 1.0.1
+package: METSIS
+dependencies:

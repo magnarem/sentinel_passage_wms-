@@ -1,0 +1,22 @@
+sentinel_passage_wms.sentinel_form:
+  path: '/swms'
+  defaults:
+    _form: '\Drupal\sentinel_passage_wms\Form\SentinelForm'
+    _title: 'SentinelForm'
+  requirements:
+    _access: 'TRUE'
+#  options
+#   no_cache: true
+
+sentinel_passage_wms.sentinel_ajax_controller_getWmsResources:
+  path: '/sentinel_passage_wms/getWmsResources'
+  defaults:
+    _controller: '\Drupal\sentinel_passage_wms\Controller\SentinelAjaxController::getWmsResources'
+    _title: 'Get WMS Resources'
+  requirements:
+    _permission: 'TRUE'
+  options:
+    query:
+      start: ""
+      stop: ""
+      wkt: ""

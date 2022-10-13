@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Contains sentinel_passage_wms.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function sentinel_passage_wms_help($route_name, RouteMatchInterface $route_match)
+{
+    switch ($route_name) {
+    // Main module help for the sentinel_passage_wms module.
+    case 'help.page.sentinel_passage_wms':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Visualisation of Sentinel2 Passages WMS') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+ /*
+function sentinel_passage_wms_theme() {
+  return [
+    'sentinel_passage_wms' => [
+      'render element' => 'children',
+    ],
+  ];
+}
+*/
