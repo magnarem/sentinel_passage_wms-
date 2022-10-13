@@ -2,7 +2,7 @@ sentinel_passage_wms.sentinel_form:
   path: '/swms'
   defaults:
     _form: '\Drupal\sentinel_passage_wms\Form\SentinelForm'
-    _title: 'SentinelForm'
+    _title: 'Sentinel2 WMS viewer passages'
   requirements:
     _access: 'TRUE'
 #  options

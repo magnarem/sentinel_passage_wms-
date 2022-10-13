@@ -339,187 +339,197 @@ class SentinelForm extends FormBase
         //  dpm($values); //DEBUG
         //  dpm($this->years);
 
-
-        //Get the element that triggered this form rebuild
-        $el = $form_state->getTriggeringElement();
-        if (isset($el['#name'])) {
-            $triggering_element = $el['#name'];
-        } else {
-            $triggering_element = '';
-        }
-
-
-        // Disable caching on this form.
-        //$form_state->disableCache();
-
-        //Set Sentinel2A as default
-        if (!$form_state->hasValue('select_platform')) {
-            $form_state->setValue('select_platform', 'S2A');
-        }
+        /*
+                //Get the element that triggered this form rebuild
+                $el = $form_state->getTriggeringElement();
+                if (isset($el['#name'])) {
+                    $triggering_element = $el['#name'];
+                } else {
+                    $triggering_element = '';
+                }
 
 
-        $form['form_wrapper'] = [
-          '#type' => 'container',
-          '#attributes' => [ 'id' => 'form-wrapper'],
-    ];
+                // Disable caching on this form.
+                //$form_state->disableCache();
+
+                //Set Sentinel2A as default
+                if (!$form_state->hasValue('select_platform')) {
+                    $form_state->setValue('select_platform', 'S2A');
+                }
 
 
-        //Build the form
-        $form['form_wrapper']['select_platform'] = [
-        '#type' => 'radios',
-        '#title' => $this->t('Select Sentinel2'),
-        '#options' => [
-          'S2A' => $this->t('Sentinel2-A'),
-          'S2B' => $this->t('Sentinel2-B'),
-        ],
-        '#default_value' => $form_state->getValue('select_platform'),
-
-        '#ajax' => [
-          'wrapper' => 'year-wrapper',
-          'callback' => '::getYearsCallback',
-          'event' => 'change'
-        ],
-
-      ];
-
-
-
-        $form['form_wrapper']['year_wrapper'] = [
-          '#type' => 'container',
-          '#attributes' => [ 'id' => 'year-wrapper'],
-    ];
-
-
-        //Populate the years form if it was not populated yet.
-        $values = $form_state->getValues();
-        if ($triggering_element === 'select_platform') {
-            //    dpm('do years query triggering element select_platform');
-            $years = $this->doDatesQuery($values, '+1YEAR');
-            //$form_state->set('years', $years);
-            $this->years = $years;
-        }
-
-        if (null == $this->years) {
-            //    dpm('do years query empty years');
-            $years = $this->doDatesQuery($values, '+1YEAR');
-            //$form_state->set('years', $years);
-            $this->years = $years;
-        }
-
-
-        if (null != $this->years || $triggering_element === 'select_platform') {
-            $form['form_wrapper']['year_wrapper']['years'] = [
-        '#type' => 'select',
-        '#title' => $this->t('Year'),
-        '#options' => $this->years,
-        '#empty_option' => $this->t('- Year -'),
-        '#default_value' => $form_state->getValue('years'),
-        '#ajax' => [
-          'wrapper' => 'month-wrapper',
-          'callback' => '::getMonthsCallback',
-          'event' => 'change'
-        ],
-      ];
-        }
-
-        $form['form_wrapper']['date_wrapper'] = [
+                $form['form_wrapper'] = [
                   '#type' => 'container',
-                  '#attributes' => [ 'id' => 'date-wrapper'],
+                  '#attributes' => [ 'id' => 'form-wrapper'],
             ];
 
-        $form['form_wrapper']['date_wrapper']['month_wrapper'] = [
+
+                //Build the form
+                $form['form_wrapper']['select_platform'] = [
+                '#type' => 'radios',
+                '#title' => $this->t('Select Sentinel2'),
+                '#options' => [
+                  'S2A' => $this->t('Sentinel2-A'),
+                  'S2B' => $this->t('Sentinel2-B'),
+                ],
+                '#default_value' => $form_state->getValue('select_platform'),
+
+                '#ajax' => [
+                  'wrapper' => 'year-wrapper',
+                  'callback' => '::getYearsCallback',
+                  'event' => 'change'
+                ],
+
+              ];
+
+
+
+                $form['form_wrapper']['year_wrapper'] = [
+                  '#type' => 'container',
+                  '#attributes' => [ 'id' => 'year-wrapper'],
+            ];
+
+
+                //Populate the years form if it was not populated yet.
+                $values = $form_state->getValues();
+                if ($triggering_element === 'select_platform') {
+                    //    dpm('do years query triggering element select_platform');
+                    $years = $this->doDatesQuery($values, '+1YEAR');
+                    //$form_state->set('years', $years);
+                    $this->years = $years;
+                }
+
+                if (null == $this->years) {
+                    //    dpm('do years query empty years');
+                    $years = $this->doDatesQuery($values, '+1YEAR');
+                    //$form_state->set('years', $years);
+                    $this->years = $years;
+                }
+
+
+                if (null != $this->years || $triggering_element === 'select_platform') {
+                    $form['form_wrapper']['year_wrapper']['years'] = [
+                '#type' => 'select',
+                '#title' => $this->t('Year'),
+                '#options' => $this->years,
+                '#empty_option' => $this->t('- Year -'),
+                '#default_value' => $form_state->getValue('years'),
+                '#ajax' => [
+                  'wrapper' => 'month-wrapper',
+                  'callback' => '::getMonthsCallback',
+                  'event' => 'change'
+                ],
+              ];
+                }
+
+                $form['form_wrapper']['date_wrapper'] = [
+                          '#type' => 'container',
+                          '#attributes' => [ 'id' => 'date-wrapper'],
+                    ];
+
+                $form['form_wrapper']['date_wrapper']['month_wrapper'] = [
+                  '#type' => 'container',
+                  '#attributes' => [ 'id' => 'month-wrapper'],
+            ];
+
+
+                if ($triggering_element === 'years') {
+                    $values = $form_state->getValues();
+                    if (!$form_state->has('months')) {
+                        $months = $this->doDatesQuery($values, '+1MONTH');
+                        $form_state->set('months', $months);
+                    } else {
+                        $months = $this->doDatesQuery($values, '+1MONTH');
+                        $form_state->set('months', $months);
+                    }
+                }
+                if ($form_state->hasValue('years')) {
+                    $form['form_wrapper']['date_wrapper']['month_wrapper']['months'] = [
+                      '#type' => 'select',
+                      '#title' => $this->t('Select month'),
+                      '#options' => $form_state->get('months'),
+                      '#empty_option' => $this->t('- Month -'),
+                      '#default_value' => $form_state->getValue('months'),
+                      '#ajax' => [
+                        'wrapper' => 'day-wrapper',
+                        'callback' => '::getDaysCallback',
+                        'event' => 'change',
+                      ],
+                    ];
+                }
+
+
+                $form['form_wrapper']['date_wrapper']['day_wrapper'] = [
           '#type' => 'container',
-          '#attributes' => [ 'id' => 'month-wrapper'],
-    ];
+          '#attributes' => [ 'id' => 'day-wrapper'],
+        ];
 
 
-        if ($triggering_element === 'years') {
-            $values = $form_state->getValues();
-            if (!$form_state->has('months')) {
-                $months = $this->doDatesQuery($values, '+1MONTH');
-                $form_state->set('months', $months);
-            } else {
-                $months = $this->doDatesQuery($values, '+1MONTH');
-                $form_state->set('months', $months);
-            }
-        }
-        if ($form_state->hasValue('years')) {
-            $form['form_wrapper']['date_wrapper']['month_wrapper']['months'] = [
-              '#type' => 'select',
-              '#title' => $this->t('Select month'),
-              '#options' => $form_state->get('months'),
-              '#empty_option' => $this->t('- Month -'),
-              '#default_value' => $form_state->getValue('months'),
-              '#ajax' => [
-                'wrapper' => 'day-wrapper',
-                'callback' => '::getDaysCallback',
-                'event' => 'change',
-              ],
-            ];
-        }
+                if ($triggering_element === 'months') {
+                    $values = $form_state->getValues();
+                    if (!$form_state->has('days')) {
+                        $days = $this->doDatesQuery($values, '+1DAY');
+                        $form_state->set('days', $days);
+                    } else {
+                        $days = $this->doDatesQuery($values, '+1DAY');
+                        $form_state->set('days', $days);
+                    }
+                }
+                if ($form_state->hasValue('months')) {
+                    $form['form_wrapper']['date_wrapper']['day_wrapper']['days'] = [
+          '#type' => 'select',
+          '#title' => $this->t('Select day'),
+          '#default_value' => $form_state->getValue('days'),
+          '#options' => $form_state->get('days'),
+          '#empty_option' => $this->t('- Days -'),
+          '#ajax' => [
+            'wrapper' => 'tile-wrapper',
+            'callback' => '::getTilesCallback',
+            'event' => 'change'
+          ],
+        ];
+                }
 
+                $form['form_wrapper']['tile_wrapper'] = [
+          '#type' => 'container',
+          '#attributes' => [ 'id' => 'tile-wrapper'],
+        ];
+                $values = $form_state->getValues();
+                if ($triggering_element === 'days') {
+                    if (!$form_state->has('tiles')) {
+                        $tiles = $this->doTileQuery($values);
+                        $form_state->set('tiles', $tiles);
+                    } else {
+                        $tiles = $this->doTileQuery($values);
+                        $form_state->set('tiles', $tiles);
+                    }
+                }
+                if ($form_state->hasValue('days')) {
+                    //dpm('tileform');
+                    $form['form_wrapper']['tile_wrapper']['select_passage_code'] = [
+            '#type' => 'select',
+            '#title' => $this->t('Select passage code'),
+            '#default_option' => $form_state->getValue('select_passage_code'),
+            //'#options' => self::SEARCH_TILES,
+            '#options' => $form_state->get('tiles'),
+            '#empty_option' => $this->t('- Select tile passage -'),
+            '#ajax' => [
+              'wrapper' => 'map-wrapper',
+              'callback' => '::getWmsMapCallback',
+              'event' => 'change'
+            ],
+          ];
+                }
+        */
 
-        $form['form_wrapper']['date_wrapper']['day_wrapper'] = [
-  '#type' => 'container',
-  '#attributes' => [ 'id' => 'day-wrapper'],
-];
+        $form['dev_message'] = [
+          '#type' => 'markup',
+          '#prefix' => '<div class="w3-panel w3-leftbar w3-text-red">',
+          '#suffix' => '</div>',
+          '#markup' => '<em><strong> Under development</em></strong><br> Mockup showing aquired Sentinel-2A data for October 2022.',
+          '#allowed_tags' => ['div','em','strong','br'],
+        ];
 
-
-        if ($triggering_element === 'months') {
-            $values = $form_state->getValues();
-            if (!$form_state->has('days')) {
-                $days = $this->doDatesQuery($values, '+1DAY');
-                $form_state->set('days', $days);
-            } else {
-                $days = $this->doDatesQuery($values, '+1DAY');
-                $form_state->set('days', $days);
-            }
-        }
-        if ($form_state->hasValue('months')) {
-            $form['form_wrapper']['date_wrapper']['day_wrapper']['days'] = [
-  '#type' => 'select',
-  '#title' => $this->t('Select day'),
-  '#default_value' => $form_state->getValue('days'),
-  '#options' => $form_state->get('days'),
-  '#empty_option' => $this->t('- Days -'),
-  '#ajax' => [
-    'wrapper' => 'tile-wrapper',
-    'callback' => '::getTilesCallback',
-    'event' => 'change'
-  ],
-];
-        }
-
-        $form['form_wrapper']['tile_wrapper'] = [
-  '#type' => 'container',
-  '#attributes' => [ 'id' => 'tile-wrapper'],
-];
-        $values = $form_state->getValues();
-        if ($triggering_element === 'days') {
-            if (!$form_state->has('tiles')) {
-                $tiles = $this->doTileQuery($values);
-                $form_state->set('tiles', $tiles);
-            } else {
-                $tiles = $this->doTileQuery($values);
-                $form_state->set('tiles', $tiles);
-            }
-        }
-        if ($form_state->hasValue('days')) {
-            //dpm('tileform');
-            $form['form_wrapper']['tile_wrapper']['select_passage_code'] = [
-    '#type' => 'select',
-    '#title' => $this->t('Select passage code'),
-    '#default_option' => $form_state->getValue('select_passage_code'),
-    //'#options' => self::SEARCH_TILES,
-    '#options' => $form_state->get('tiles'),
-    '#empty_option' => $this->t('- Select tile passage -'),
-    '#ajax' => [
-      'wrapper' => 'map-wrapper',
-      'callback' => '::getWmsMapCallback',
-      'event' => 'change'
-    ],
-  ];
-        }
 
         $form['map_wrapper'] = [
   '#type' => 'container',
