@@ -14,7 +14,7 @@ sentinel_passage_wms.sentinel_ajax_controller_getWmsResources:
     _controller: '\Drupal\sentinel_passage_wms\Controller\SentinelAjaxController::getWmsResources'
     _title: 'Get WMS Resources'
   requirements:
-    _permission: 'TRUE'
+    _access: 'TRUE'
   options:
     query:
       start: ""
