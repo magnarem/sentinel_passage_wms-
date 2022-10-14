@@ -1,6 +1,8 @@
 console.log("Start of s2wms map script:");
 (function($, Drupal, drupalSettings, once) {
 
+
+
   console.log("Attaching s2wms script to drupal behaviours:");
   /** Attach the metsis map to drupal behaviours function */
   Drupal.behaviors.s2wms = {
@@ -19,6 +21,34 @@ console.log("Start of s2wms map script:");
         var products = drupalSettings.s2wms.wms;
         var default_layers = drupalSettings.s2wms.default_layers;
         var product_titles = drupalSettings.s2wms.product_titles;
+
+
+
+        /*
+         * POPULATE SOME Forms
+         */
+
+/*
+           $('#form-wrapper')
+ .append(
+     $(document.createElement('label')).prop({
+         for: 'layers'
+     }).html('Choose layer: ')
+ )
+ .append(
+     $(document.createElement('select')).prop({
+         id: 'layers',
+         name: 'layers'
+     })
+ )
+
+ for (const val of default_layers) {
+     $('#layers').append($(document.createElement('option')).prop({
+         value: val,
+         text: val
+     }))
+ }
+*/
 
 
         console.log(updateMap);
@@ -219,6 +249,7 @@ var styleEmpty = new ol.style.Style({});
                 }),
                 style: function(feature) {
                   let now = new Date();
+                  now.setDate(now.getDate()-1);
                   let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
                   if(stop < now) {
                     feature.setStyle(styles['Polygon']);
@@ -358,8 +389,9 @@ TODO: DOES NOT WORK ON WMS LAYERS
           //console.log(prj);
 
           var layerSwitcher = new ol.control.LayerSwitcher({
-            collapsed: false,
+            collapsed: true,
             reordering: false,
+            show_progress: true,
           });
           map.addControl(layerSwitcher);
 
@@ -381,7 +413,13 @@ TODO: DOES NOT WORK ON WMS LAYERS
             return feature;
           });
 */
-
+const tooltip = document.getElementById('tooltip');
+const overlay = new ol.Overlay({
+  element: tooltip,
+  offset: [10, 0],
+  positioning: 'top'
+});
+map.addOverlay(overlay);
 
 /*
  * Render the wms layers;
@@ -428,11 +466,20 @@ map.on('pointermove', function (e) {
     selected = null;
   }
 
-  map.forEachFeatureAtPixel(e.pixel, function (f) {
+const feature = map.forEachFeatureAtPixel(e.pixel, function (f) {
     selected = f;
     f.setStyle(styleRed);   //add your style here
+
+    tooltip.style.display = f ? '' : 'none';
+    if (f) {
+      overlay.setPosition(e.coordinate);
+      tooltip.innerHTML = 'ID: ' +f.get('ID');
+      tooltip.innerHTML += '<br>Start: '+f.get('ObservationTimeStart');
+      tooltip.innerHTML += '<br>Stop: '+f.get('ObservationTimeStop');
+    }
     return true;
   });
+
 
   if (selected) {
     //status.innerHTML = '&nbsp;Hovering: ' + selected.get('name');
@@ -495,9 +542,19 @@ map.on('click', function (e) {
   }
 });
 
+//Custom functions
+$.fn.myAjaxCallback = function(argument) {
+  console.log('myAjaxCallback is called.');
+  // Set textfield's value to the passed arguments.
+  console.log(argument);
+  wmsLayerGroup.getLayers().forEach(function(l) {
+    l.getSource().updateParams({'LAYERS': argument});
+  });
+
+};
 
 $('#map-wrapper').bind('visualise', function(data, status, xhr) {
-    console.log(status);
+    console.log('Custom function');
     console.log(data);
     });
 

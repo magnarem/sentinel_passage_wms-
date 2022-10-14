@@ -144,6 +144,8 @@ class SentinelAjaxController extends ControllerBase
         $response = new AjaxResponse();
         //$response->addCommand(new DataCommand('#map-wrapper', 'visualise', $settings));
         $response->addCommand(new SettingsCommand($settings, true));
+        $response->addCommand(new InvokeCommand('#map-wrapper', 'visualise'));
+
         //\Drupal::logger('metsis_search_map_search_controller')->debug(\Drupal::request()->getRequestUri());
         return $response;
     }

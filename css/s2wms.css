@@ -2,10 +2,15 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  margin: 0.25em
-  
+  margin-left: 0.5em;
+  margin-right: 0.5em;
 }
 
 .map {
   width: 100%;
+}
+
+#tooltip {
+background: rgba(76, 175, 80, 0.7);
+padding: 0.25em;
 }
