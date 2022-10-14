@@ -319,8 +319,8 @@ class SentinelForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state)
     {
-        dpm('.............buildForm..............');
-        dpm($form_state->getTriggeringElement()['#name']);
+        //dpm('.............buildForm..............');
+        //dpm($form_state->getTriggeringElement()['#name']);
         #dpm($form_state);
         $form['dev_message'] = [
           '#type' => 'markup',
@@ -397,7 +397,7 @@ class SentinelForm extends FormBase
         }
 
         if (!$form_state->has('years')) {
-            dpm('do years query empty years');
+            //  dpm('do years query empty years');
             $years = $this->doDatesQuery($form_state->getValues(), '+1YEAR');
             $form_state->set('years', $years);
         }
@@ -443,7 +443,7 @@ class SentinelForm extends FormBase
         }
 
         if (!$form_state->has('months')) {
-            dpm('do months query empty months');
+            //  dpm('do months query empty months');
             $months = $this->doDatesQuery($form_state->getValues(), '+1MONTH');
             //$form_state->set('years', $years);
             $form_state->set('months', $months);
@@ -752,7 +752,7 @@ class SentinelForm extends FormBase
             }
             $dates = $months;
         }
-        dpm($dates);
+        //dpm($dates);
 
         return $dates;
     }
