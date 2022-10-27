@@ -8,9 +8,30 @@
 
 .map {
   width: 100%;
+  z-index: 0;
 }
 
 #tooltip {
 background: rgba(76, 175, 80, 0.7);
 padding: 0.25em;
+}
+
+.datepicker {
+  height: fit-content;
+  z-index: 99;
+  position: relative;
+}
+
+.ol-mouse-position {
+  margin-right: 36px;
+}
+
+#progress-wrapper {
+ position: relative;
+ height: 15px;
+
+ background: -webkit-linear-gradient(left, #dcdcdc 0%, #7593b9 100%);
+ width: 100%;
+ max-width: 100%;
+ transition: width 250ms;
 }

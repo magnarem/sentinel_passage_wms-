@@ -466,69 +466,81 @@ class SentinelForm extends FormBase
                         ];
         }
 
-        /*
-                            $form['form_wrapper']['date_wrapper']['day_wrapper'] = [
+
+        $form['form_wrapper']['date_wrapper']['day_wrapper'] = [
                           '#type' => 'container',
                           '#attributes' => [ 'id' => 'day-wrapper'],
                         ];
 
 
-                            if ($triggering_element === 'months') {
-                                $values = $form_state->getValues();
-                                if (!$form_state->has('days')) {
-                                    $days = $this->doDatesQuery($values, '+1DAY');
-                                    $form_state->set('days', $days);
-                                } else {
-                                    $days = $this->doDatesQuery($values, '+1DAY');
-                                    $form_state->set('days', $days);
-                                }
-                            }
-                            if ($form_state->hasValue('months')) {
-                                $form['form_wrapper']['date_wrapper']['day_wrapper']['days'] = [
-                          '#type' => 'select',
-                          '#title' => $this->t('Select day'),
-                          '#default_value' => $form_state->getValue('days'),
-                          '#options' => $form_state->get('days'),
-                          '#empty_option' => $this->t('- Days -'),
-                          '#ajax' => [
-                        'wrapper' => 'tile-wrapper',
-                        'callback' => '::getTilesCallback',
-                        'event' => 'change'
-                          ],
-                        ];
-                            }
+        $form['form_wrapper']['date_wrapper']['day_wrapper']['date_picker'] = [
+                                                  '#type' => 'textfield',
+                                                  '#title' => $this->t('Select timeframe of interest'),
+                                                  '#attributes' => [
+                                                    'id' => 'datepicker',
+                                                    'class' => ['datepicker'],
+                                                  ],
+                                                  '#default_value' => '',
+                                                  '#size' => 20,
+                                                ];
 
-                            $form['form_wrapper']['tile_wrapper'] = [
-                          '#type' => 'container',
-                          '#attributes' => [ 'id' => 'tile-wrapper'],
-                        ];
-                            $values = $form_state->getValues();
-                            if ($triggering_element === 'days') {
-                                if (!$form_state->has('tiles')) {
-                                    $tiles = $this->doTileQuery($values);
-                                    $form_state->set('tiles', $tiles);
-                                } else {
-                                    $tiles = $this->doTileQuery($values);
-                                    $form_state->set('tiles', $tiles);
-                                }
-                            }
-                            if ($form_state->hasValue('days')) {
-                                //dpm('tileform');
-                                $form['form_wrapper']['tile_wrapper']['select_passage_code'] = [
-                        '#type' => 'select',
-                        '#title' => $this->t('Select passage code'),
-                        '#default_option' => $form_state->getValue('select_passage_code'),
-                        //'#options' => self::SEARCH_TILES,
-                        '#options' => $form_state->get('tiles'),
-                        '#empty_option' => $this->t('- Select tile passage -'),
-                        '#ajax' => [
-                          'wrapper' => 'map-wrapper',
-                          'callback' => '::getWmsMapCallback',
-                          'event' => 'change'
-                        ],
-                          ];
-                            }
-                        */
+        /*
+                                    if ($triggering_element === 'months') {
+                                        $values = $form_state->getValues();
+                                        if (!$form_state->has('days')) {
+                                            $days = $this->doDatesQuery($values, '+1DAY');
+                                            $form_state->set('days', $days);
+                                        } else {
+                                            $days = $this->doDatesQuery($values, '+1DAY');
+                                            $form_state->set('days', $days);
+                                        }
+                                    }
+                                    if ($form_state->hasValue('months')) {
+                                        $form['form_wrapper']['date_wrapper']['day_wrapper']['days'] = [
+                                  '#type' => 'select',
+                                  '#title' => $this->t('Select day'),
+                                  '#default_value' => $form_state->getValue('days'),
+                                  '#options' => $form_state->get('days'),
+                                  '#empty_option' => $this->t('- Days -'),
+                                  '#ajax' => [
+                                'wrapper' => 'tile-wrapper',
+                                'callback' => '::getTilesCallback',
+                                'event' => 'change'
+                                  ],
+                                ];
+                                    }
+
+                                    $form['form_wrapper']['tile_wrapper'] = [
+                                  '#type' => 'container',
+                                  '#attributes' => [ 'id' => 'tile-wrapper'],
+                                ];
+                                    $values = $form_state->getValues();
+                                    if ($triggering_element === 'days') {
+                                        if (!$form_state->has('tiles')) {
+                                            $tiles = $this->doTileQuery($values);
+                                            $form_state->set('tiles', $tiles);
+                                        } else {
+                                            $tiles = $this->doTileQuery($values);
+                                            $form_state->set('tiles', $tiles);
+                                        }
+                                    }
+                                    if ($form_state->hasValue('days')) {
+                                        //dpm('tileform');
+                                        $form['form_wrapper']['tile_wrapper']['select_passage_code'] = [
+                                '#type' => 'select',
+                                '#title' => $this->t('Select passage code'),
+                                '#default_option' => $form_state->getValue('select_passage_code'),
+                                //'#options' => self::SEARCH_TILES,
+                                '#options' => $form_state->get('tiles'),
+                                '#empty_option' => $this->t('- Select tile passage -'),
+                                '#ajax' => [
+                                  'wrapper' => 'map-wrapper',
+                                  'callback' => '::getWmsMapCallback',
+                                  'event' => 'change'
+                                ],
+                                  ];
+                                    }
+                                */
 
 
 
@@ -546,6 +558,15 @@ class SentinelForm extends FormBase
             ],
 
           ];
+
+        $form['progress_wrapper'] = [
+    '#type' => 'container',
+    '#attributes' => [
+      'id' => 'progress-wrapper',
+      //'class' => 'map'
+    ],
+  ];
+
 
         $form['map_wrapper'] = [
   '#type' => 'container',
@@ -565,13 +586,14 @@ class SentinelForm extends FormBase
         //dpm($this->updateMap);
         $form['#attached']['library'][] = 'sentinel_passage_wms/sentinel_passage_wms';
         //$form['#cache']['max-age'] = 0;
-        $form['#attached']['drupalSettings'] = [
-          's2wms' => [
+        $form['#attached']['drupalSettings']['s2wms'] = [
             'update_map' => $this->updateMap,
             'wms' => [],
             'default_layers' => self::LAYERS,
             'product_titles' => [],
-        ],
+            'year' => $form_state->getValue('years'),
+            'month' => $form_state->getValue('months'),
+            'platform' => $form_state->getValue('select_platform'),
       ];
 
         //dpm($values);
@@ -612,7 +634,22 @@ class SentinelForm extends FormBase
         $years = $this->doDatesQuery($form_state->getValues(), '+1YEAR');
         $form_state->set('years', $years);
         $form['form_wrapper']['year_wrapper']['years']['#options'] = $years;
-        return $form['form_wrapper']['year_wrapper'];
+
+        $settings = [
+          's2wms' => [
+          'update_map' => true,
+          'years' => $form_state->getValue('years'),
+          'months' => $form_state->getValue('months'),
+          'platform' => $form_state->getValue('select_platform'),
+
+        ],
+      ];
+        $response = new AjaxResponse();
+        $response->addCommand(new InvokeCommand(null, 'changeDatesCallback', [$form_state->getValues()]));
+        $response->addCommand(new ReplaceCommand('#year-wrapper', $form['form_wrapper']['year_wrapper']));
+
+        //return $form['form_wrapper']['year_wrapper'];
+        return $response;
     }
 
     public function getMonthsCallback(array &$form, FormStateInterface $form_state)
@@ -621,12 +658,42 @@ class SentinelForm extends FormBase
         $form_state->set('months', $months);
         $form['form_wrapper']['date_wrapper']['month_wrapper']['months']['#options'] = $months;
 
-        return $form['form_wrapper']['date_wrapper']['month_wrapper'];
+        $settings = [
+          's2wms' => [
+          'update_map' => true,
+          'years' => $form_state->getValue('years'),
+          'months' => $form_state->getValue('months'),
+          'platform' => $form_state->getValue('select_platform'),
+
+        ],
+      ];
+        $response = new AjaxResponse();
+        $response->addCommand(new InvokeCommand(null, 'changeDatesCallback', [$form_state->getValues()]));
+        $response->addCommand(new ReplaceCommand('#month-wrapper', $form['form_wrapper']['date_wrapper']['month_wrapper']));
+
+
+        //return $form['form_wrapper']['date_wrapper']['month_wrapper'];
+        return $response;
     }
 
     public function getDaysCallback(array &$form, FormStateInterface $form_state)
     {
-        return $form['form_wrapper']['date_wrapper']['day_wrapper'];
+        $settings = [
+        's2wms' => [
+        'update_map' => true,
+        'years' => $form_state->getValue('years'),
+        'months' => $form_state->getValue('months'),
+        'platform' => $form_state->getValue('select_platform'),
+
+      ],
+    ];
+        $response = new AjaxResponse();
+        $response->addCommand(new InvokeCommand(null, 'changeDatesCallback', [$form_state->getValues()]));
+        //$response->addCommand(new ReplaceCommand('#month-wrapper', $form['form_wrapper']['date_wrapper']['month_wrapper']));
+
+
+        //return $form['form_wrapper']['date_wrapper']['day_wrapper'];
+        return $response;
     }
 
     public function getTilesCallback(array &$form, FormStateInterface $form_state)
@@ -644,6 +711,7 @@ class SentinelForm extends FormBase
         'wms' => $wmsResources,
         'product_titles' => $this->productTitles,
         'default_layers' => implode(',', self::LAYERS),
+        'platform' => $form_state->getValue('select_platform'),
       ];
         return $form['map_wrapper'];
         /*
@@ -662,7 +730,7 @@ class SentinelForm extends FormBase
         $response = new AjaxResponse();
         //$response->setData(['update_map' => $this->updateMap]);
         //$response->addCommand(new ReplaceCommand('#map-wrapper', $form['map-wrapper']));
-        $response->addCommand(new InvokeCommand(null, 'myAjaxCallback', [$selected_layer]));
+        $response->addCommand(new InvokeCommand(null, 'changeLayerCallback', [$selected_layer]));
         return $response;
     }
 

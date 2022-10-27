@@ -30,6 +30,11 @@ class SentinelAjaxController extends ControllerBase
     protected $solrConnector;
 
 
+    public const PRODUCT = [
+      'S2A' => 'Sentinel-2A',
+      'S2B' => 'Sentinel-2B',
+    ];
+
     /**
      * {@inheritdoc}
      */
@@ -64,6 +69,7 @@ class SentinelAjaxController extends ControllerBase
         $startDate = $params['start'];
         $endDate = $params['stop'];
         $wkt = $params['wkt'];
+        $platform =  self::PRODUCT[$params['platform']];
 
 
         \Drupal::logger('s2wms')->debug('Got start date: ' .$startDate);
@@ -93,7 +99,7 @@ class SentinelAjaxController extends ControllerBase
 
         //Filter on platform name
         //$platform = self::PRODUCT[$values['select_platform']];
-        $query->createFilterQuery('platform')->setQuery('platform_short_name:'.'Sentinel-2A');
+        $query->createFilterQuery('platform')->setQuery('platform_short_name:'. $platform);
 
         //Filter on chosen date:
         //$date_start = $values['years'].'-'.$values['months'].'-'.$values['days'].'T00:00:00Z';
@@ -110,7 +116,7 @@ class SentinelAjaxController extends ControllerBase
         //First we return empty query to get result count
         $result = $this->solrConnector->execute($query);
         $found = $result->getNumFound();
-        \Drupal::logger('sentinel_wms')->debug("WMS query get wms sources - : " . $found);
+        \Drupal::logger('sentinel_wms')->debug("WMS query get wms sources found: " . $found);
 
 
         //Store the query for later use.
@@ -144,7 +150,7 @@ class SentinelAjaxController extends ControllerBase
         $response = new AjaxResponse();
         //$response->addCommand(new DataCommand('#map-wrapper', 'visualise', $settings));
         $response->addCommand(new SettingsCommand($settings, true));
-        $response->addCommand(new InvokeCommand('#map-wrapper', 'visualise'));
+        //$response->addCommand(new InvokeCommand('#map-wrapper', 'visualise'));
 
         //\Drupal::logger('metsis_search_map_search_controller')->debug(\Drupal::request()->getRequestUri());
         return $response;

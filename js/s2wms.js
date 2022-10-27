@@ -21,6 +21,17 @@ console.log("Start of s2wms map script:");
         var products = drupalSettings.s2wms.wms;
         var default_layers = drupalSettings.s2wms.default_layers;
         var product_titles = drupalSettings.s2wms.product_titles;
+        var year = drupalSettings.s2wms.year;
+        var month = drupalSettings.s2wms.month;
+        var platform = drupalSettings.s2wms.platform;
+
+
+        console.log('Year: ' + year);
+        console.log('Month: ' + month);
+
+        var firstDay = new Date(year, month-1, 1);
+        var lastDay = new Date(year, month, 0);
+
 
 
 
@@ -51,9 +62,9 @@ console.log("Start of s2wms map script:");
 */
 
 
-        console.log(updateMap);
+        //console.log(updateMap);
         //var defzoom = drupalSettings.satellite_passage.defzoom;
-        console.log(products);
+      //  console.log(products);
         //var lon = drupalSettings.satellite_passage.lon;
         //var lat = drupalSettings.satellite_passage.lat;
         // define some interesting projections
@@ -149,10 +160,21 @@ const styleFunction = function (feature) {
     })
   });
 
+  var styleGreen = new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: '#0f0',
+      width: 1
+    }),
+    fill: new ol.style.Fill({
+      color: 'rgba(0,255,0,0.3)'
+    })
+  })
+
+
 var styleEmpty = new ol.style.Style({});
 
 
-
+// Defining some projections
           console.log('Creating  projections and base map as hidden element');
               proj4.defs('EPSG:5939', '+proj=stere +lat_0=90 +lat_ts=90 +lon_0=18 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs');
               ol.proj.proj4.register(proj4);
@@ -232,22 +254,85 @@ var styleEmpty = new ol.style.Style({});
 
 
               //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
-
-              const vectorLayer = new ol.layer.Vector({
-                background: '#1a2b39',
-                title: 'Sentinel2-A',
-                opacity: 0.4,
-                source: new ol.source.Vector({
-                  //projection: 'EPSG:4326',
-                  crossOrigin: 'anonymous',
-                  url: '/modules/metno/sentinel_passage_wms/assets/S2A_acquisition_plan_norwAOI.kml',
-                  format: new ol.format.KML({
-                    extractStyles: false,
-                    extractAttributes: true
-                  }),
-
+              var kmlSource = new ol.source.Vector({
+                //projection: 'EPSG:4326',
+                crossOrigin: 'anonymous',
+                //url: '/modules/metno/sentinel_passage_wms/assets/S2A_acquisition_plan_norwAOI.kml',
+                //url: '/modules/metno/sentinel_passage_wms/assets/mergedKML_1666015062742.kml',
+                format: new ol.format.KML({
+                  extractStyles: false,
+                  extractAttributes: true
                 }),
-                style: function(feature) {
+
+              });
+
+              var kmlInitStyleFunction = function(feature,res) {
+                  let now = new Date();
+                  firstDay.setDate(now.getDate() - 7);
+                  //let lastDay = new Date(year, month, 0);
+                  //console.log('First day: ' +firstDay);
+                  //console.log('Last day: ' +lastDay);
+                  //console.log('Now: ' +now);
+                  if(now.getFullYear() === lastDay.getFullYear() && now.getMonth() === lastDay.getMonth()) {
+                    lastDay = now;
+                  }
+                  //firs.setDate(now.getDate()-1);
+                  let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
+                  let start = new Date(Date.parse(feature.get("ObservationTimeStart")));
+
+                  //console.log('start: ' +start);
+                  //console.log('stop:' + stop);
+
+                  if(stop <= lastDay && start >= firstDay) {
+                  //if(stop <= lastDay) {
+                    //console.log("setting style");
+                    feature.setStyle(styles['Polygon']);
+
+                  }
+                  else {
+                    feature.setStyle(undefined);
+                  }
+
+              };
+
+              var kmlStyleFunction = function(feature,res) {
+                  let now = new Date();
+                  //let firstDay = new Date(year, month-1, 1);
+                  //let lastDay = new Date(year, month, 0);
+                  //console.log('First day: ' +firstDay);
+                  //console.log('Last day: ' +lastDay);
+                  //console.log('Now: ' +now);
+                  if(now.getFullYear() === lastDay.getFullYear() && now.getMonth() === lastDay.getMonth()) {
+                    lastDay = now;
+                  }
+                  //firs.setDate(now.getDate()-1);
+                  let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
+                  let start = new Date(Date.parse(feature.get("ObservationTimeStart")));
+
+                  //console.log('start: ' +start);
+                  //console.log('stop:' + stop);
+
+                  if(stop <= lastDay && start >= firstDay) {
+                  //if(stop <= lastDay) {
+                    //console.log("setting style");
+                    feature.setStyle(styles['Polygon']);
+
+                  }
+                  else {
+                    feature.setStyle(undefined);
+                  }
+
+              };
+
+
+              var vectorLayer = new ol.layer.Vector({
+                background: '#1a2b39',
+                title: 'Sentinel2 passage',
+                opacity: 0.4,
+                source: kmlSource,
+                //style: kmlStyleFunction,
+/*
+                function(feature) {
                   let now = new Date();
                   now.setDate(now.getDate()-1);
                   let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
@@ -255,7 +340,7 @@ var styleEmpty = new ol.style.Style({});
                     feature.setStyle(styles['Polygon']);
 
                   }
-                }
+                }*/
               });
               /*
                 source: new ol.source.Vector({
@@ -310,6 +395,41 @@ var styleEmpty = new ol.style.Style({});
                 source: new ol.source.OSM({}),
               });
 
+
+              //Adding timepicker
+              //const label = document.createElement("label");
+              //label.setAttribute("for", "datepicker");
+              //label.innerHTML = "Select timeframe of interest: ";
+              //document.getElementById('day-wrapper').appendChild(label);
+              /*
+              var newInput = document.createElement("input");
+              newInput.setAttribute('id','datepicker');
+              newInput.setAttribute('class','datepicker');
+              document.getElementById('day-wrapper').appendChild(newInput);
+              */
+              const picker = new easepick.create({
+                element: '#datepicker',
+                zIndex: 99,
+                css: [
+                  'https://cdn.jsdelivr.net/npm/@easepick/core@1.2.0/dist/index.css',
+                  'https://cdn.jsdelivr.net/npm/@easepick/lock-plugin@1.2.0/dist/index.css',
+                  'https://cdn.jsdelivr.net/npm/@easepick/range-plugin@1.2.0/dist/index.css',
+                ],
+                plugins: ['RangePlugin','LockPlugin'],
+                RangePlugin: {
+                  tooltip: true,
+                },
+                LockPlugin: {
+                  minDate: firstDay,
+                  maxDate: lastDay,
+                },
+
+              });
+
+     // refresh layout
+     //picker.renderAll();
+
+
           console.log('Updating map/showing map');
           document.getElementById("map-wrapper").style.height = '600px';
           const wmsLayerGroup = new ol.layer.Group({
@@ -363,7 +483,8 @@ TODO: DOES NOT WORK ON WMS LAYERS
           // build up the map
           var map = new ol.Map({
             controls: ol.control.defaults().extend([
-              new ol.control.FullScreen()
+              new ol.control.FullScreen(),
+              new ol.control.ScaleLine(),
             ]),
             target: 'map-wrapper',
             layers: [
@@ -371,8 +492,8 @@ TODO: DOES NOT WORK ON WMS LAYERS
               //stamenTerrain,
               //osmHumanitarian,
               osmStandard,
-              //wmsLayerGroup,
               vectorLayer,
+              wmsLayerGroup,
             ],
             view: new ol.View({
               zoom: 3,
@@ -421,12 +542,20 @@ const overlay = new ol.Overlay({
 });
 map.addOverlay(overlay);
 
+
+
+
+
+
 /*
  * Render the wms layers;
  */
 
 function renderPassage(products,product_titles) {
-
+  console.log(products.length);
+  if(products.length == 0) {
+    alert('Could not find any products for this passage and timeframe...');
+  }
   for(let i = 0; i < products.length; i++){
     wmsLayerGroup.getLayers().push(
       new ol.layer.Tile({
@@ -439,6 +568,9 @@ function renderPassage(products,product_titles) {
         //styles: ls[i].Style,
         source: new ol.source.TileWMS(({
           url: products[i],
+          serverType: 'geoserver',
+           // Countries have transparency, so do not fade tiles:
+          transition: 0,
           //reprojectionErrorThreshold: 0.1,
           //projection: selected_proj,
           params: {
@@ -455,21 +587,51 @@ function renderPassage(products,product_titles) {
 
 
 }
-map.addLayer(wmsLayerGroup);
+//map.addLayer(wmsLayerGroup);
 }
+
+
+const lockPlugin = picker.PluginManager.getInstance('LockPlugin');
+const rangePlugin = picker.PluginManager.getInstance('RangePlugin');
+
+
+picker.on('preselect', (e) => {
+//console.log('preselect');
+//lockPlugin.options.minDate = firstDay;
+//lockPlugin.options.maxDate = lastDay;
+
+});
+
 
 //Highlight passages on pointer move
 let selected = null;
 map.on('pointermove', function (e) {
+  if (e.dragging) {
+
+    return;
+  }
+
   if (selected !== null) {
+    if(selected.get('selected')) {
+      selected.setStyle(styleGreen);
+
+    }
+    else {
     selected.setStyle(undefined);
     selected = null;
+    tooltip.style.display = 'none';
+    overlay.setPosition(undefined);
+  }
   }
 
 const feature = map.forEachFeatureAtPixel(e.pixel, function (f) {
     selected = f;
+    if(selected.get('selected')) {
+        f.setStyle(styleGreen);
+      }
+      else {
     f.setStyle(styleRed);   //add your style here
-
+  }
     tooltip.style.display = f ? '' : 'none';
     if (f) {
       overlay.setPosition(e.coordinate);
@@ -477,16 +639,22 @@ const feature = map.forEachFeatureAtPixel(e.pixel, function (f) {
       tooltip.innerHTML += '<br>Start: '+f.get('ObservationTimeStart');
       tooltip.innerHTML += '<br>Stop: '+f.get('ObservationTimeStop');
     }
+    else {
+      tooltip.style.display = 'none';
+      overlay.setPosition(undefined);
+      //tooltip.style.display = 'hidden';
+      //tooltip.innerHTML = '';
+    }
     return true;
   });
 
-
+/*
   if (selected) {
     //status.innerHTML = '&nbsp;Hovering: ' + selected.get('name');
     //console.log(selected);
   } else {
     //status.innerHTML = '&nbsp;';
-  }
+  }*/
 });
 
 
@@ -500,7 +668,8 @@ map.on('click', function (e) {
 */
   map.forEachFeatureAtPixel(e.pixel, function (f) {
     clicked = f;
-    //f.setStyle(styleRed);   //add your style here
+    f.setStyle(styleGreen);
+    f.set('selected',true);  //add your style here
     return true;
   });
 
@@ -521,7 +690,7 @@ map.on('click', function (e) {
     //status.innerHTML = '&nbsp;Hovering: ' + selected.get('name');
     //console.log(selected);
 
-    var myurl = '/sentinel_passage_wms/getWmsResources?start=' + startDate + '&stop=' + endDate + '&wkt=' + geom_wkt;
+    var myurl = '/sentinel_passage_wms/getWmsResources?start=' + startDate + '&stop=' + endDate + '&wkt=' + geom_wkt +'&platform=' + platform;
     //console.log('calling controller url: ' + myurl);
     data = Drupal.ajax({
       url: myurl,
@@ -532,6 +701,7 @@ map.on('click', function (e) {
         var wms_urls = response[0].settings.s2wms.wms_urls;
         var titles = response[0].settings.s2wms.titles;
         renderPassage(wms_urls,titles);
+        progress_bar();
         //console.log(response[0].settings.s2wms.wms_urls);
       },
 
@@ -543,20 +713,253 @@ map.on('click', function (e) {
 });
 
 //Custom functions
-$.fn.myAjaxCallback = function(argument) {
-  console.log('myAjaxCallback is called.');
+$.fn.changeLayerCallback = function(argument) {
+  console.log('Change layer is called.');
   // Set textfield's value to the passed arguments.
   console.log(argument);
   wmsLayerGroup.getLayers().forEach(function(l) {
     l.getSource().updateParams({'LAYERS': argument});
   });
+  progress_bar();
 
 };
 
-$('#map-wrapper').bind('visualise', function(data, status, xhr) {
-    console.log('Custom function');
-    console.log(data);
+$.fn.changeDatesCallback = function(argument) {
+  console.log('Change dates is called.');
+  vectorLayer.getSource().clear();
+  picker.clear();
+  // Set textfield's value to the passed arguments.
+   year = argument.years;
+   month = argument.months;
+   platform = argument.select_platform;
+
+    firstDay = new Date(year, month-1, 1);
+    lastDay = new Date(year, month, 0);
+
+  let platform_lc = argument.select_platform.toLowerCase();
+  console.log(platform);
+  console.log(year);
+  console.log(month);
+wmsLayerGroup.getLayers().clear();
+let now = new Date();
+if(now.getFullYear() === lastDay.getFullYear() && now.getMonth() === lastDay.getMonth()) {
+  kmlSource.setUrl('/modules/metno/sentinel_passage_wms/assets/'+platform_lc+'_latest_norwAOI.kml');
+  rangePlugin.setDateRange(firstDay.setDate(now.getDate() - 7),lastDay.setDate(now.getDate() - 1));
+  vectorLayer.setStyle(kmlInitStyleFunction);
+
+}
+else {
+  kmlSource.setUrl('/modules/metno/sentinel_passage_wms/assets/'+platform_lc+'_'+year+'_norwAOI.kml');
+  vectorLayer.setStyle(kmlStyleFunction);
+}
+
+picker.gotoDate(firstDay);
+
+lockPlugin.options.minDate = firstDay;
+lockPlugin.options.maxDate = lastDay;
+picker.renderAll();
+vectorLayer.setSource(kmlSource);
+//vectorLayer.redraw(true);
+vectorLayer.getSource().refresh();
+vectorLayer.changed();
+
+};
+
+
+/*
+$(document).on("change", 'input[type=select][name=years]', function(ev) {
+  console.log('years select change');
+  console.log(ev);
+});
+*/
+
+/*
+$(document).ajaxComplete(function(ev, xhr, opts) {
+    console.log('AjaxComplete');
+    console.log(ev);
+    console.log(xhr);
+    console.log(opts);
+
+
     });
+*/
+
+//Put default latest kml source.
+/*
+kmlSource.setUrl('/modules/metno/sentinel_passage_wms/assets/S2A_acquisition_plan_norwAOI.kml');
+kmlStyleFunction = function(feature) {
+    let now = new Date();
+    //let firstDay = new Date(year, month-1, 1);
+    //let lastDay = new Date(year, month, 0);
+    //console.log('First day: ' +firstDay);
+    //console.log('Last day: ' +lastDay);
+    //console.log('Now: ' +now);
+    if(now.getFullYear() === lastDay.getFullYear() && now.getMonth() === lastDay.getMonth()) {
+      lastDay = now;
+    }
+    //firs.setDate(now.getDate()-1);
+    let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
+    let start = new Date(Date.parse(feature.get("ObservationTimeStart")));
+
+    //console.log('start: ' +start);
+    //console.log('stop:' + stop);
+
+    if(stop <= lastDay && start >= firstDay) {
+    //if(stop <= lastDay) {
+      //console.log("setting style");
+      feature.setStyle(styles['Polygon']);
+
+    }
+    else {
+      feature.setStyle(styleEmpty);
+    }
+
+};
+vectorLayer.setStyle(kmlStyleFunction);
+vectorLayer.getSource().refresh();
+vectorLayer.changed();
+*/
+// create a progress bar to show the loading of tiles
+function progress_bar() {
+  console.log("Register progress-bar")
+  var tilesLoaded = 0;
+  var tilesPending = 0;
+  //load all S1 and S2 entries
+  map.getLayers().forEach(function(layer, index, array) {
+
+    if (layer.get('title') === 'Selected Passage' &&  layer instanceof ol.layer.Group) {
+      console.log( layer instanceof ol.layer.Group);
+      layer.getLayers().forEach(function(layer,index, array) {
+        //console.log(array.length);
+        //console.log(Object.getPrototypeOf(layer));
+        if( layer instanceof ol.layer.Group ) {
+        layer.getLayers().forEach(function(layer,index, array) {
+        //for all tiles that are done loading update the progress bar
+        //layer.getSource().refresh();
+        layer.getSource().on('tileloadend', function() {
+          tilesLoaded += 1;
+          var percentage = Math.round(tilesLoaded / tilesPending * 100);
+          document.getElementById('progress-wrapper').style.width = percentage + '%';
+          // fill the bar to the end
+          if (percentage >= 100) {
+            document.getElementById('progress-wrapper').style.width = '100%';
+            tilesLoaded = 0;
+            tilesPending = 0;
+          }
+        });
+
+        //for all tiles that are staring to load update the number of pending tiles
+        layer.getSource().on('tileloadstart', function() {
+          ++tilesPending;
+        });
+      });
+    }
+    else {
+      layer.getSource().on('tileloadend', function() {
+        tilesLoaded += 1;
+        var percentage = Math.round(tilesLoaded / tilesPending * 100);
+        document.getElementById('progress-wrapper').style.width = percentage + '%';
+        // fill the bar to the end
+        if (percentage >= 100) {
+          document.getElementById('progress-wrapper').style.width = '100%';
+          tilesLoaded = 0;
+          tilesPending = 0;
+        }
+      });
+
+      //for all tiles that are staring to load update the number of pending tiles
+      layer.getSource().on('tileloadstart', function() {
+        ++tilesPending;
+      });
+    }
+    });
+  }
+  });
+  //$('#bottomMapPanel').show();
+
+}
+
+/*
+kmlStyleFunction = function(feature) {
+    let now = new Date();
+    //let firstDay = new Date(year, month-1, 1);
+    //let lastDay = new Date(year, month, 0);
+    //console.log('First day: ' +firstDay);
+    //console.log('Last day: ' +lastDay);
+    //console.log('Now: ' +now);
+    if(now.getFullYear() === lastDay.getFullYear() && now.getMonth() === lastDay.getMonth()) {
+      lastDay = now;
+    }
+    //firs.setDate(now.getDate()-1);
+    let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
+    let start = new Date(Date.parse(feature.get("ObservationTimeStart")));
+
+    //console.log('start: ' +start);
+    //console.log('stop:' + stop);
+
+    if(stop <= lastDay && start >= firstDay) {
+    //if(stop <= lastDay) {
+      //console.log("setting style");
+      feature.setStyle(styles['Polygon']);
+
+    }
+    else {
+      feature.setStyle(styleEmpty);
+    }
+
+};
+vectorLayer.setStyle(kmlStyleFunction);
+vectorLayer.getSource().refresh();
+vectorLayer.changed();
+*/
+
+//Add date picker select callback
+picker.on('select', (e) => {
+console.log('dateselect function');
+const { start, end } = e.detail;
+firstDay = start;
+lastDay = end;
+//picker.clear();
+//lockPlugin.options.minDate = firstDay;
+//lockPlugin.options.maxDate = lastDay;
+//picker.renderAll();
+/*
+vectorLayer.setStyle(function (feature) {
+
+
+//firs.setDate(now.getDate()-1);
+let stop = new Date(Date.parse(feature.get("ObservationTimeStop")));
+let start = new Date(Date.parse(feature.get("ObservationTimeStart")));
+
+//console.log('start: ' +start);
+//console.log('stop:' + stop);
+
+if(stop <= lastDay && start >= firstDay) {
+//if(stop <= lastDay) {
+  //console.log("setting style");
+  feature.setStyle(styles['Polygon']);
+
+}
+});
+*/
+vectorLayer.setStyle(kmlStyleFunction);
+
+vectorLayer.getSource().refresh();
+vectorLayer.changed();
+//vectorLayer.getSource().refresh();
+//console.log(e);
+});
+
+let args = {
+  years: year,
+  months: month,
+  select_platform: platform
+};
+$.fn.changeDatesCallback(args);
+
+//vectorLayer.setStyle(kmlInitStyleFunction);
+//kmlSource.refresh();
+//kmlSource.changed();
 
 
 });
