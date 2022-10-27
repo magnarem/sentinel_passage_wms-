@@ -326,7 +326,7 @@ class SentinelForm extends FormBase
           '#type' => 'markup',
           '#prefix' => '<div class="w3-panel w3-leftbar w3-text-red">',
           '#suffix' => '</div>',
-          '#markup' => '<em><strong> Under development</em></strong><br> Mockup showing aquired Sentinel-2A data for October 2022.',
+          '#markup' => '<em><strong> Under development</em></strong><br> Use the year and month dropdowns to change the timeframe, and use the calendar to choose the date range of interest. The visulised wms tiles will be cleared when a dropdown is selected.',
           '#allowed_tags' => ['div','em','strong','br'],
         ];
         //Fetch the current form values

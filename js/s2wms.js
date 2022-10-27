@@ -259,6 +259,7 @@ var styleEmpty = new ol.style.Style({});
                 crossOrigin: 'anonymous',
                 //url: '/modules/metno/sentinel_passage_wms/assets/S2A_acquisition_plan_norwAOI.kml',
                 //url: '/modules/metno/sentinel_passage_wms/assets/mergedKML_1666015062742.kml',
+                //wrapX: false,
                 format: new ol.format.KML({
                   extractStyles: false,
                   extractAttributes: true
@@ -316,6 +317,18 @@ var styleEmpty = new ol.style.Style({});
                   //if(stop <= lastDay) {
                     //console.log("setting style");
                     feature.setStyle(styles['Polygon']);
+
+                  }
+                  else {
+                    feature.setStyle(undefined);
+                  }
+
+              };
+
+
+              var wmsStyleFunction = function(feature,res) {
+                if(feature.get('selected')) {
+                  feature.setStyle(styleGreen);
 
                   }
                   else {
@@ -614,6 +627,9 @@ map.on('pointermove', function (e) {
   if (selected !== null) {
     if(selected.get('selected')) {
       selected.setStyle(styleGreen);
+      selected = null;
+      tooltip.style.display = 'none';
+      overlay.setPosition(undefined);
 
     }
     else {
@@ -702,6 +718,16 @@ map.on('click', function (e) {
         var titles = response[0].settings.s2wms.titles;
         renderPassage(wms_urls,titles);
         progress_bar();
+        vectorLayer.getSource().forEachFeature(function (f) {
+          if(f.get('selected')) {
+            f.setStyle(styleGreen);
+
+            }
+            else {
+              f.setStyle(styleEmpty);
+            }
+        });
+
         //console.log(response[0].settings.s2wms.wms_urls);
       },
 
@@ -916,6 +942,8 @@ vectorLayer.changed();
 //Add date picker select callback
 picker.on('select', (e) => {
 console.log('dateselect function');
+//vectorLayer.getSource().clear();
+wmsLayerGroup.getLayers().clear();
 const { start, end } = e.detail;
 firstDay = start;
 lastDay = end;
