@@ -559,6 +559,18 @@ class SentinelForm extends FormBase
 
           ];
 
+        $form['form_wrapper']['reset'] = [
+              '#type' => 'button',
+              '#title' => $this->t('Redraw passages'),
+
+              '#ajax' => [
+                //'wrapper' => 'map-wrapper',
+                'callback' => '::resetCallback',
+                //'event' => 'change'
+              ],
+
+            ];
+
         $form['progress_wrapper'] = [
     '#type' => 'container',
     '#attributes' => [
@@ -731,6 +743,18 @@ class SentinelForm extends FormBase
         //$response->setData(['update_map' => $this->updateMap]);
         //$response->addCommand(new ReplaceCommand('#map-wrapper', $form['map-wrapper']));
         $response->addCommand(new InvokeCommand(null, 'changeLayerCallback', [$selected_layer]));
+        return $response;
+    }
+
+    public function resetCallback(array &$form, FormStateInterface $form_state)
+    {
+        //$values = $form_state->getValues();
+        //$selected_layer = $form_state->getValue('layers');
+        $values = $form_state->getValues();
+        $response = new AjaxResponse();
+        //$response->setData(['update_map' => $this->updateMap]);
+        //$response->addCommand(new ReplaceCommand('#map-wrapper', $form['map-wrapper']));
+        $response->addCommand(new InvokeCommand(null, 'resetPassageCallback', [$values]));
         return $response;
     }
 

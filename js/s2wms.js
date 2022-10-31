@@ -495,10 +495,13 @@ TODO: DOES NOT WORK ON WMS LAYERS
 
           // build up the map
           var map = new ol.Map({
-            controls: ol.control.defaults().extend([
+            controls: [
+              new ol.control.Zoom(),
+              new ol.control.Rotate(),
+              new ol.control.Attribution(),
               new ol.control.FullScreen(),
               new ol.control.ScaleLine(),
-            ]),
+            ],
             target: 'map-wrapper',
             layers: [
               //layer['base'],
@@ -581,16 +584,17 @@ function renderPassage(products,product_titles) {
         //styles: ls[i].Style,
         source: new ol.source.TileWMS(({
           url: products[i],
-          serverType: 'geoserver',
+          serverType: 'mapserver',
            // Countries have transparency, so do not fade tiles:
           transition: 0,
+          imageSmoothing: false,
           //reprojectionErrorThreshold: 0.1,
           //projection: selected_proj,
           params: {
             'LAYERS': "true_color_vegetation",
             'VERSION': "1.3.0",
             'FORMAT': 'image/png',
-            'TILE': true,
+            'TILED': true,
             'TRANSPARENT': true,
           },
           crossOrigin: 'anonymous',
@@ -786,6 +790,23 @@ lockPlugin.options.maxDate = lastDay;
 picker.renderAll();
 vectorLayer.setSource(kmlSource);
 //vectorLayer.redraw(true);
+vectorLayer.getSource().refresh();
+vectorLayer.changed();
+
+};
+
+
+$.fn.resetPassageCallback = function(argument) {
+  console.log('Reset passage called.');
+  //vectorLayer.getSource().clear();
+  //picker.clear();
+  // Set textfield's value to the passed arguments.
+   year = argument.years;
+   month = argument.months;
+   platform = argument.select_platform;
+
+    firstDay = new Date(year, month-1, 1);
+    lastDay = new Date(year, month, 0);
 vectorLayer.getSource().refresh();
 vectorLayer.changed();
 
