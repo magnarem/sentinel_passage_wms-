@@ -549,7 +549,7 @@ class SentinelForm extends FormBase
             '#type' => 'select',
             '#title' => $this->t('Change layer'),
             '#options' => self::LAYERS,
-            '#default_value' => self::LAYERS[0],
+            '#default_value' => self::LAYERS['true_color_vegetation'],
 
             '#ajax' => [
               'wrapper' => 'map-wrapper',
@@ -561,7 +561,7 @@ class SentinelForm extends FormBase
 
         $form['form_wrapper']['reset'] = [
               '#type' => 'button',
-              '#title' => $this->t('Redraw passages'),
+              '#value' => $this->t('Redraw passages'),
 
               '#ajax' => [
                 //'wrapper' => 'map-wrapper',
@@ -570,6 +570,18 @@ class SentinelForm extends FormBase
               ],
 
             ];
+
+            $form['form_wrapper']['remove'] = [
+                  '#type' => 'button',
+                  '#value' => $this->t('Remove WMS'),
+
+                  '#ajax' => [
+                    //'wrapper' => 'map-wrapper',
+                    'callback' => '::resetWmsCallback',
+                    //'event' => 'change'
+                  ],
+
+                ];
 
         $form['progress_wrapper'] = [
     '#type' => 'container',
@@ -758,6 +770,18 @@ class SentinelForm extends FormBase
         return $response;
     }
 
+    public function resetWmsCallback(array &$form, FormStateInterface $form_state)
+    {
+        //$values = $form_state->getValues();
+        //$selected_layer = $form_state->getValue('layers');
+        $values = $form_state->getValues();
+        $response = new AjaxResponse();
+        //$response->setData(['update_map' => $this->updateMap]);
+        //$response->addCommand(new ReplaceCommand('#map-wrapper', $form['map-wrapper']));
+        $response->addCommand(new InvokeCommand(null, 'resetWmsCallback', [$values]));
+        return $response;
+    }
+
 
     /**
      * Query solr for date facets giving the product
@@ -838,8 +862,14 @@ class SentinelForm extends FormBase
         }
         if ($gap === '+1MONTH') {
             $months = [];
+            if(isset($values['year'])) {
+              $newyear = $values['year'];
+            }
+            else {
+              $newyear = null;
+            }
             foreach ($dates as $value) {
-                $months[$value] = date("F", mktime(0, 0, 0, $value, $values['year']));
+                $months[$value] = date("F", mktime(0, 0, 0, $value, $newyear));
                 // code...
             }
             $dates = $months;

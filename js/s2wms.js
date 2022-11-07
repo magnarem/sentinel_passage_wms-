@@ -462,8 +462,10 @@ var styleEmpty = new ol.style.Style({});
                 //projections: ol.control.Projection.CommonProjections(outerThis.projections, (layerProjections) ? layerProjections : wmsProjs),
                 //dimensions: getTimeDimensions(),
                 //styles: ls[i].Style,
-                source: new ol.source.TileWMS(({
+                source: new ol.source.WMTS(({
                   url: products[i],
+                  hidpi: false,
+                  ratio: 1,
                   //reprojectionErrorThreshold: 0.1,
                   //projection: selected_proj,
                   params: {
@@ -807,8 +809,29 @@ $.fn.resetPassageCallback = function(argument) {
 
     firstDay = new Date(year, month-1, 1);
     lastDay = new Date(year, month, 0);
+console.log(kmlSource);
+//vectorLayer.getSource().clear();
+//vectorLayer.setSource(kmlSource);
+//vectorLayer.setStyle(kmlStyleFunction);
+vectorLayer.getSource().forEachFeature(function (f) {
+  if(f.get('selected')) {
+    f.unset('selected');
+    //f.setStyle(styleGreen);
+
+    }
+    else {
+      //f.setStyle(styleEmpty);
+    }
+  });
 vectorLayer.getSource().refresh();
 vectorLayer.changed();
+
+};
+
+$.fn.resetWmsCallback = function(argument) {
+  console.log('Reset wms called.');
+  wmsLayerGroup.getLayers().clear();
+  //wmsLayerGroup.getLayers().refresh();
 
 };
 
